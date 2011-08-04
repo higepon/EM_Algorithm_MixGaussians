@@ -22,13 +22,12 @@ ancestralSampling <- function(n) {
 
 responsibility <- function(xn, k, K, pi, mu, sigma) {
   a <- pi[[k]] * dmvnorm(xn, mu[[k]], sigma[[k]]);
-  b <- sum(sapply(1:K, function(v) { pi[[j]] * dmvnorm(xn, mu[[j]], sigma[[j]]) }));
+  b <- sum(sapply(1:K, function(j) { pi[[j]] * dmvnorm(xn, mu[[j]], sigma[[j]]) }));
   a / b;
 }
 
 Estep <- function(xx, pi, mu, sigma) {
-  K <- nrow(mu);
-  cat(sprintf("K=%d", K));
+  K <- length(mu);
   sapply(xx, function(x) {
     sapply(1:K, function(k) {
       responsibility(x, k, K, pi, mu, sigma);
@@ -37,15 +36,17 @@ Estep <- function(xx, pi, mu, sigma) {
 }
 
 nK <- function(xx, k, K, pi, mu, sigma) {
-  sum(sapply(xx, function(x) { responsibility(x, k, K, pi, mu, sigma) });
+  sum(sapply(xx, function(x) { responsibility(x, k, K, pi, mu, sigma); }));
 }
 
 muNew <- function(xx, k, K, pi, mu, sigma) {
-  nK(xx, k, K) / sum(sapply(xx, function(x) { responsibility(x, k, K, pi, mu, sigma) * x}));
+  nK(xx, k, K) / sum(sapply(xx, function(x) { responsibility(x, k, K, pi, mu, sigma) * x; }));
 }
 
 ## sigmaNew <- function(xx, k, K, mu, muNew, sigma) {
 
-plot(ancestralSampling(1000));
+#plot(ancestralSampling(1000));
 
-Estep(list(c(1, 2), c(3, 4)), pi, mu, sigma);
+## Estep(list(c(1, 2), c(3, 4), c(5, 6)), pi, mu, sigma);
+
+## (dmvnorm(c(3,4), mu[[2]], sigma[[2]]) * pi[[2]]) / (dmvnorm(c(3,4), mu[[1]], sigma[[1]]) * pi[[1]] + dmvnorm(c(3,4), mu[[2]], sigma[[2]]) * pi[[2]])
