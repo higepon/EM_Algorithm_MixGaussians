@@ -41,8 +41,11 @@ nK <- function(xx, k, K, pi, mu, sigma) {
 }
 
 muNew <- function(xx, k, K, pi, mu, sigma) {
-#  colSums(apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * x; })) / nK(xx, k, K, pi, mu, sigma);
-  apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * x; });
+  rowSums(apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * x; })) / nK(xx, k, K, pi, mu, sigma);
+}
+
+sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
+  rowSums(apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * (x - muKNew) * t(x - muKNew); })) / nK(xx, k, K, pi, mu, sigma);
 }
 
 xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
@@ -55,6 +58,7 @@ nK(xx, 1, 2, pi, mu, sigma)
 ## [1] 1.613336
 
 muNew(xx, 1, 2, pi, mu, sigma)
+## [1] 4.047560 5.047560
 
 ## muNew(list(c(1, 2), c(3, 4), c(5, 6)), 1, 2, pi, mu, sigma)
 ## nK(list(c(1, 2), c(3, 4), c(5, 6)), 1, 2, pi, mu, sigma)
