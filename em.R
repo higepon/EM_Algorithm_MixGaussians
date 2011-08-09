@@ -27,8 +27,13 @@ nK <- function(xx, k, gammaKn) {
   ret;
 }
 
-muNew <- function(xx, k, K, pi, mu, sigma) {
-  rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * x; })) / nK(xx, k, K, pi, mu, sigma);
+muNew <- function(xx, k, gammaKn) {
+  N <- nrow(xx);
+  sum = c(0, 0);
+  for(n in 1:N) {
+    sum <- sum + gammaKn[k, n] * xx[n,];
+  }
+  sum / nK(xx, k, gammaKn);
 }
 
 sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
@@ -36,7 +41,7 @@ sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
 }
 
 piNew <- function(xx, k, gammaKn) {
-  nK(xx, k, gammaKn) / length(xx) * length(mu);
+  nK(xx, k, gammaKn) / length(xx) * length(xx[1,]);
 }
 
 Mstep <- function(xx, pi, mu, sigma) {
@@ -99,7 +104,8 @@ test.muKNew <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
-  muKNew <- muNew(xx, 1, 2, pi, mu, sigma);
+  gammaKn <- Estep(xx, pi, mu, sigma);
+  muKNew <- muNew(xx, 1, gammaKn);
   checkEqualsNumeric(muKNew, c(4.047560, 5.047560), tolerance=0.0001);
 }
 
@@ -136,21 +142,21 @@ test.piKNew <- function() {
 # runTestFile("./em.R")
 
 ## E, M step
-pi <- list(0.5, 0.5);
-mu <- list(c(1, 1), c(2, 2));
-sigma <- list(matrix(c(1,0,0,1), 2, 2), matrix(c(1,0,0,1), 2, 2));
+## pi <- list(0.5, 0.5);
+## mu <- list(c(1, 1), c(2, 2));
+## sigma <- list(matrix(c(1,0,0,1), 2, 2), matrix(c(1,0,0,1), 2, 2));
 
-ancestralSampling1 <- function(n) {
-  x <- runif(1);
-  if (x[1] <= pi[[1]]) {
-    rmvnorm(n=1, mu[[1]], sigma[[1]]);
-  } else {
-    rmvnorm(n=1, mu[[2]], sigma[[2]]);
-  }
-}
+## ancestralSampling1 <- function(n) {
+##   x <- runif(1);
+##   if (x[1] <= pi[[1]]) {
+##     rmvnorm(n=1, mu[[1]], sigma[[1]]);
+##   } else {
+##     rmvnorm(n=1, mu[[2]], sigma[[2]]);
+##   }
+## }
 
-ancestralSampling <- function(n) {
-  t(sapply(1:n, ancestralSampling1))
-}
+## ancestralSampling <- function(n) {
+##   t(sapply(1:n, ancestralSampling1))
+## }
 
-xx <- ancestralSampling(100)
+## xx <- ancestralSampling(100)
