@@ -100,3 +100,12 @@ test.sigmaNew <- function() {
 ## [2,] 1.425674 1.425674
 ## > 
 }
+
+test.piKNew <- function() {
+  input <- input.data();
+  pi <- input[[1]];
+  mu <- input[[2]];
+  sigma <- input[[3]];
+  xx <- input[[4]];
+  checkEqualsNumeric(piKNew(xx, k, K, pi, mu, sigma), 0.5377787, tolerance=0.00010);
+}
