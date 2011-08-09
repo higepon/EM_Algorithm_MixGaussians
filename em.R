@@ -27,35 +27,36 @@ nK <- function(xx, k, gammaKn) {
   ret;
 }
 
-muNew <- function(xx, k, gammaKn) {
+muNew <- function(xx, k, gammaKn, nK) {
   N <- nrow(xx);
   sum = c(0, 0);
   for(n in 1:N) {
     sum <- sum + gammaKn[k, n] * xx[n,];
   }
-  sum / nK(xx, k, gammaKn);
+  sum / nK;
 }
 
-sigmaNew <- function(xx, k, gammaKn, muKNew) {
+sigmaNew <- function(xx, k, gammaKn, muKNew, nK) {
   N <- nrow(xx);
   sum = c(0, 0, 0, 0);
   for(n in 1:N) {
     sum <- sum + gammaKn[k, n] * ((xx[n,] - muKNew) %*% t(xx[n,] - muKNew));
   }
-  matrix(sum / nK(xx, k, gammaKn), ncol=2);
+  matrix(sum / nK, ncol=2);
 
   ## matrix(rowSums(apply(xx, 1, function(x) { gammaKn[k, n] * ((x - muKNew) %*% t(x - muKNew)); })) / nK(xx, k, gammaKn), ncol=2);
 }
 
-piNew <- function(xx, k, gammaKn) {
-  nK(xx, k, gammaKn) / length(xx) * length(xx[1,]);
+piNew <- function(xx, k, gammaKn, nK) {
+  nK / length(xx) * length(xx[1,]);
 }
 
 Mstep <- function(xx, gammaKn) {
   K <- length(xx[1,]);
-  piNext <- lapply(1:K, function(k) { piNew(xx, k, gammaKn); });
-  muNext <- lapply(1:K, function(k) { muNew(xx, k, gammaKn); });
-  sigmaNext <- lapply(1:K, function(k) { sigmaNew(xx, k, gammaKn, muNext[[k]]); });
+  nKList <- lapply(1:K, function(k) { nK(xx, k, gammaKn); });
+  piNext <- lapply(1:K, function(k) { piNew(xx, k, gammaKn, nKList[[k]]); });
+  muNext <- lapply(1:K, function(k) { muNew(xx, k, gammaKn, nKList[[k]]); });
+  sigmaNext <- lapply(1:K, function(k) { sigmaNew(xx, k, gammaKn, muNext[[k]], nKList[[k]]); });
   list(piNext, muNext, sigmaNext);
 }
 
@@ -113,7 +114,7 @@ test.muKNew <- function() {
   sigma <- input[[3]];
   xx <- input[[4]];
   gammaKn <- Estep(xx, pi, mu, sigma);
-  muKNew <- muNew(xx, 1, gammaKn);
+  muKNew <- muNew(xx, 1, gammaKn, nK(xx, 1, gammaKn));
   checkEqualsNumeric(muKNew, c(4.047560, 5.047560), tolerance=0.0001);
 }
 
@@ -124,8 +125,8 @@ test.sigmaNew <- function() {
   sigma <- input[[3]];
   xx <- input[[4]];
   gammaKn <- Estep(xx, pi, mu, sigma);
-  muKNew <- muNew(xx, 1, gammaKn);
-  checkEqualsNumeric(sigmaNew(xx, 1, gammaKn, muKNew),
+  muKNew <- muNew(xx, 1, gammaKn, nK(xx, 1, gammaKn));
+  checkEqualsNumeric(sigmaNew(xx, 1, gammaKn, muKNew, nK(xx, 1, gammaKn)),
                      matrix(c(1.425674, 1.425674,
                               1.425674, 1.425674), byrow=T, ncol=2), tolerance=0.0001);
 ## sigmaNew
@@ -145,7 +146,8 @@ test.piKNew <- function() {
   sigma <- input[[3]];
   xx <- input[[4]];
   gammaKn <- Estep(xx, pi, mu, sigma);
-  checkEqualsNumeric(piNew(xx, 1, gammaKn), 0.5377787, tolerance=0.0001);
+  k <- 1;
+  checkEqualsNumeric(piNew(xx, k, gammaKn, nK(xx, k, gammaKn)), 0.5377787, tolerance=0.0001);
 }
 
 # runTestFile("./em.R")
