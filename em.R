@@ -24,15 +24,15 @@ responsibility <- function(xn, k, K, pi, mu, sigma) {
 
 Estep <- function(xx, pi, mu, sigma) {
   K <- length(mu);
-  apply(xx, 1, function(...) {
+  apply(xx, 1, function(x) {
     sapply(1:K, function(k) {
-      responsibility(list(...)[[1]], k, K, pi, mu, sigma);
+      responsibility(x, k, K, pi, mu, sigma);
     });
   });
 }
 
 nK <- function(xx, k, K, pi, mu, sigma) {
-  sum(apply(xx, 1, function(...) { x = list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma); }));
+  sum(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma); }));
 }
 
 muNew <- function(xx, k, K, pi, mu, sigma) {
@@ -61,8 +61,6 @@ input.data <- function() {
   xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
   list(pi, mu, sigma, xx);
 }
-
-
 
 ## Unit Tests
 test.nK <- function() {
