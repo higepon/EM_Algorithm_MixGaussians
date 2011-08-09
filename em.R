@@ -57,8 +57,6 @@ gammaNk
 ## [1,] 0.08630052 0.5957016 0.9313342
 ## [2,] 0.91369948 0.4042984 0.0686658
 
-nK(xx, 1, 2, pi, mu, sigma)
-## [1] 1.613336
 
 input.data <- function() {
   pi <- list(0.7, 0.3);
@@ -68,16 +66,6 @@ input.data <- function() {
   list(pi, mu, sigma, xx);
 }
 
-test.nK <- function() {
-  input <- inputput.data();
-  pi <- input[[1]];
-  mu <- input[[1]];
-  sigma <- input[[1]];
-  xx <- input[[1]];
-  checkEqualsNumeric(nK(xx, 1, 2, pi, mu, sigma), 1.613336, tolerance = 0.0001);
-}
-
-test.nK()
 
 muKNew <- muNew(xx, 1, 2, pi, mu, sigma)
 ## [1] 4.047560 5.047560
@@ -107,3 +95,23 @@ sigmaNew(xx, 1, 2, pi, mu, sigma, muKNew)
 
 
 ## (dmvnorm(c(3,4), mu[[2]], sigma[[2]]) * pi[[2]]) / (dmvnorm(c(3,4), mu[[1]], sigma[[1]]) * pi[[1]] + dmvnorm(c(3,4), mu[[2]], sigma[[2]]) * pi[[2]])
+
+## Unit Tests
+test.nK <- function() {
+  input <- input.data();
+  pi <- input[[1]];
+  mu <- input[[2]];
+  sigma <- input[[3]];
+  xx <- input[[4]];
+  checkEqualsNumeric(nK(xx, 1, 2, pi, mu, sigma), 1.613336, tolerance = 0.0001);
+}
+
+test.Estep <- function() {
+  input <- input.data();
+  pi <- input[[1]];
+  mu <- input[[2]];
+  sigma <- input[[3]];
+  xx <- input[[4]];
+  gammaNk <- Estep(xx, pi, mu, sigma);
+  checkEqualsNumeric(gammaNk, matrix(c(0.08630052, 0.5957016, 0.9313342, 0.91369948, 0.4042984, 0.0686658), nrow=2, byrow=T), tolerance=0.0001);
+}
