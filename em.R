@@ -90,8 +90,12 @@ test.Mstep <- function() {
   sigma <- input[[3]];
   xx <- input[[4]];
   checkEquals(Mstep(xx, 1, 2, pi, mu, sigma),
-              list(0.5377787, c(4.047560, 5.047560), matrix(c(1.425674, 1.425674,
-                                                              1.425674, 1.425674), byrow=T, ncol=2)),
+              list(list(0.4622212, 0.5377787), # pi
+                   list(c(4.047560, 5.047560), c(1.781199, 2.781199)), # mu
+                   list(matrix(c(1.425674, 1.425674,
+                                 1.425674, 1.425674), byrow=T, ncol=2),
+                        matrix(c(1.348276, 1.348276,
+                                 1.348276, 1.348276), byrow=T, ncol=2))),
               tolerance=0.0001);
 }
 
@@ -111,6 +115,7 @@ test.sigmaNew <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
+  muKNew <- muNew(xx, 1, 2, pi, mu, sigma);
   checkEqualsNumeric(sigmaNew(xx, 1, 2, pi, mu, sigma, muKNew),
                      matrix(c(1.425674, 1.425674,
                               1.425674, 1.425674), byrow=T, ncol=2), tolerance=0.0001);
