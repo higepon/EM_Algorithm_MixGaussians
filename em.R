@@ -43,6 +43,10 @@ sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
   matrix(rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * ((x - muKNew) %*% t(x - muKNew)); })) / nK(xx, k, K, pi, mu, sigma), ncol=2);
 }
 
+piNew <- function(xx, k, K, pi, mu, sigma) {
+  nK(xx, k, K, pi, mu, sigma) / length(xx) * length(mu);
+}
+
 input.data <- function() {
   pi <- list(0.7, 0.3);
   mu <- list(c(6, 7), c(1, 1));
@@ -107,5 +111,7 @@ test.piKNew <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
-  checkEqualsNumeric(piKNew(xx, k, K, pi, mu, sigma), 0.5377787, tolerance=0.00010);
+  checkEqualsNumeric(piNew(xx, 1, 2, pi, mu, sigma), 0.5377787, tolerance=0.0001);
 }
+
+# runTestFile("./em.R")
