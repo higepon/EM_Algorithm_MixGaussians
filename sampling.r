@@ -41,15 +41,17 @@ nK <- function(xx, k, K, pi, mu, sigma) {
 }
 
 muNew <- function(xx, k, K, pi, mu, sigma) {
-  rowSums(apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * x; })) / nK(xx, k, K, pi, mu, sigma);
+  rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * x; })) / nK(xx, k, K, pi, mu, sigma);
 }
 
+
 sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
-  rowSums(apply(xx, 1, function(...) { x <- list(...)[[1]]; responsibility(x, k, K, pi, mu, sigma) * (x - muKNew) * t(x - muKNew); })) / nK(xx, k, K, pi, mu, sigma);
+  matrix(rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * ((x - muKNew) %*% t(x - muKNew)); })) / nK(xx, k, K, pi, mu, sigma), ncol=2);
 }
 
 xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
-Estep(xx, pi, mu, sigma);
+gammaNk <- Estep(xx, pi, mu, sigma);
+gammaNk
 ##            [,1]      [,2]      [,3]
 ## [1,] 0.08630052 0.5957016 0.9313342
 ## [2,] 0.91369948 0.4042984 0.0686658
@@ -57,14 +59,23 @@ Estep(xx, pi, mu, sigma);
 nK(xx, 1, 2, pi, mu, sigma)
 ## [1] 1.613336
 
-muNew(xx, 1, 2, pi, mu, sigma)
+muKNew <- muNew(xx, 1, 2, pi, mu, sigma)
 ## [1] 4.047560 5.047560
 
-## muNew(list(c(1, 2), c(3, 4), c(5, 6)), 1, 2, pi, mu, sigma)
-## nK(list(c(1, 2), c(3, 4), c(5, 6)), 1, 2, pi, mu, sigma)
+sigmaNew(xx, 1, 2, pi, mu, sigma, muKNew)
+##          [,1]     [,2]
+## [1,] 1.425674 1.425674
+## [2,] 1.425674 1.425674
 
+## sigmaNew
+## > (gammaNk[1, 1] * (c(1, 2) - muKNew)  %*% t((c(1, 2) - muKNew)) +
+## + gammaNk[1, 2] * (c(3, 4) - muKNew)  %*% t((c(3, 4) - muKNew)) + 
+## + gammaNk[1, 3] * (c(5, 6) - muKNew)  %*% t((c(5, 6) - muKNew))) / 1.613336
+##          [,1]     [,2]
+## [1,] 1.425674 1.425674
+## [2,] 1.425674 1.425674
+## > 
 
-## sigmaNew <- function(xx, k, K, mu, muNew, sigma) {
 
 #plot(ancestralSampling(1000));
 
