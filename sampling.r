@@ -1,6 +1,7 @@
 # PRML 9.2 Mixture of Gaussians
 #   There are two Gaussians.
 library(mvtnorm)
+library(RUnit)
 
 pi <- list(0.7, 0.3);
 mu <- list(c(6, 7), c(1, 1));
@@ -49,7 +50,7 @@ sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
   matrix(rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * ((x - muKNew) %*% t(x - muKNew)); })) / nK(xx, k, K, pi, mu, sigma), ncol=2);
 }
 
-xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
+  xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
 gammaNk <- Estep(xx, pi, mu, sigma);
 gammaNk
 ##            [,1]      [,2]      [,3]
@@ -58,6 +59,25 @@ gammaNk
 
 nK(xx, 1, 2, pi, mu, sigma)
 ## [1] 1.613336
+
+input.data <- function() {
+  pi <- list(0.7, 0.3);
+  mu <- list(c(6, 7), c(1, 1));
+  sigma <- list(matrix(c(7,0,0,7), 2, 2), matrix(c(10,3,3,10), 2, 2));
+  xx <- matrix(c(1, 2, 3, 4, 5, 6),ncol=2, byrow=TRUE);
+  list(pi, mu, sigma, xx);
+}
+
+test.nK <- function() {
+  input <- inputput.data();
+  pi <- input[[1]];
+  mu <- input[[1]];
+  sigma <- input[[1]];
+  xx <- input[[1]];
+  checkEqualsNumeric(nK(xx, 1, 2, pi, mu, sigma), 1.613336, tolerance = 0.0001);
+}
+
+test.nK()
 
 muKNew <- muNew(xx, 1, 2, pi, mu, sigma)
 ## [1] 4.047560 5.047560
