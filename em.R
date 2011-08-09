@@ -3,19 +3,6 @@
 library(mvtnorm)
 library(RUnit)
 
-ancestralSampling1 <- function(n) {
-  x <- runif(1);
-  if (x[1] <= pi[[1]]) {
-    rmvnorm(n=1, mu[[1]], sigma[[1]]);
-  } else {
-    rmvnorm(n=1, mu[[2]], sigma[[2]]);
-  }
-}
-
-ancestralSampling <- function(n) {
-  t(sapply(1:n, ancestralSampling1))
-}
-
 responsibility <- function(xn, k, K, pi, mu, sigma) {
   a <- pi[[k]] * dmvnorm(xn, mu[[k]], sigma[[k]]);
   b <- sum(sapply(1:K, function(j) { pi[[j]] * dmvnorm(xn, mu[[j]], sigma[[j]]) }));
@@ -31,8 +18,13 @@ Estep <- function(xx, pi, mu, sigma) {
   });
 }
 
-nK <- function(xx, k, K, pi, mu, sigma) {
-  sum(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma); }));
+nK <- function(xx, k, gammaKn) {
+  ret <- 0;
+  N <- nrow(xx);
+  for(n in 1:N) {
+    ret <- ret + gammaKn[k, n];
+  }
+  ret;
 }
 
 muNew <- function(xx, k, K, pi, mu, sigma) {
@@ -70,7 +62,8 @@ test.nK <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
-  checkEqualsNumeric(nK(xx, 1, 2, pi, mu, sigma), 1.613336, tolerance = 0.0001);
+  gammaKn <- Estep(xx, pi, mu, sigma);
+  checkEqualsNumeric(nK(xx, 1, gammaKn), 1.613336, tolerance = 0.0001);
 }
 
 test.Estep <- function() {
@@ -140,3 +133,23 @@ test.piKNew <- function() {
 }
 
 # runTestFile("./em.R")
+
+## E, M step
+pi <- list(0.5, 0.5);
+mu <- list(c(1, 1), c(2, 2));
+sigma <- list(matrix(c(1,0,0,1), 2, 2), matrix(c(1,0,0,1), 2, 2));
+
+ancestralSampling1 <- function(n) {
+  x <- runif(1);
+  if (x[1] <= pi[[1]]) {
+    rmvnorm(n=1, mu[[1]], sigma[[1]]);
+  } else {
+    rmvnorm(n=1, mu[[2]], sigma[[2]]);
+  }
+}
+
+ancestralSampling <- function(n) {
+  t(sapply(1:n, ancestralSampling1))
+}
+
+xx <- ancestralSampling(100)
