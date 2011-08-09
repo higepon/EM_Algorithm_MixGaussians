@@ -51,11 +51,11 @@ piNew <- function(xx, k, gammaKn) {
   nK(xx, k, gammaKn) / length(xx) * length(xx[1,]);
 }
 
-Mstep <- function(xx, pi, mu, sigma) {
-  K <- length(mu);
-  piNext <- lapply(1:K, function(k) { piNew(xx, k, K, pi, mu, sigma); });
-  muNext <- lapply(1:K, function(k) { muNew(xx, k, K, pi, mu, sigma); });
-  sigmaNext <- lapply(1:K, function(k) { sigmaNew(xx, k, K, pi, mu, sigma, muNext[[k]]); });
+Mstep <- function(xx, gammaKn) {
+  K <- length(xx[1,]);
+  piNext <- lapply(1:K, function(k) { piNew(xx, k, gammaKn); });
+  muNext <- lapply(1:K, function(k) { muNew(xx, k, gammaKn); });
+  sigmaNext <- lapply(1:K, function(k) { sigmaNew(xx, k, gammaKn, muNext[[k]]); });
   list(piNext, muNext, sigmaNext);
 }
 
@@ -95,7 +95,8 @@ test.Mstep <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
-  checkEquals(Mstep(xx, pi, mu, sigma),
+  gammaNk <- Estep(xx, pi, mu, sigma);
+  checkEquals(Mstep(xx, gammaNk),
               list(list(0.5377787, 0.4622212), # pi
                    list(c(4.047560, 5.047560), c(1.781199, 2.781199)), # mu
                    list(matrix(c(1.425674, 1.425674,
