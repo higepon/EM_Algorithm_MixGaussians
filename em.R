@@ -35,8 +35,8 @@ sigmaNew <- function(xx, k, K, pi, mu, sigma, muKNew) {
   matrix(rowSums(apply(xx, 1, function(x) { responsibility(x, k, K, pi, mu, sigma) * ((x - muKNew) %*% t(x - muKNew)); })) / nK(xx, k, K, pi, mu, sigma), ncol=2);
 }
 
-piNew <- function(xx, k, K, pi, mu, sigma) {
-  nK(xx, k, K, pi, mu, sigma) / length(xx) * length(mu);
+piNew <- function(xx, k, gammaKn) {
+  nK(xx, k, gammaKn) / length(xx) * length(mu);
 }
 
 Mstep <- function(xx, pi, mu, sigma) {
@@ -129,7 +129,8 @@ test.piKNew <- function() {
   mu <- input[[2]];
   sigma <- input[[3]];
   xx <- input[[4]];
-  checkEqualsNumeric(piNew(xx, 1, 2, pi, mu, sigma), 0.5377787, tolerance=0.0001);
+  gammaKn <- Estep(xx, pi, mu, sigma);
+  checkEqualsNumeric(piNew(xx, 1, gammaKn), 0.5377787, tolerance=0.0001);
 }
 
 # runTestFile("./em.R")
