@@ -153,21 +153,38 @@ test.piKNew <- function() {
 # runTestFile("./em.R")
 
 ## E, M step
-## pi <- list(0.5, 0.5);
-## mu <- list(c(1, 1), c(2, 2));
-## sigma <- list(matrix(c(1,0,0,1), 2, 2), matrix(c(1,0,0,1), 2, 2));
 
-## ancestralSampling1 <- function(n) {
-##   x <- runif(1);
-##   if (x[1] <= pi[[1]]) {
-##     rmvnorm(n=1, mu[[1]], sigma[[1]]);
-##   } else {
-##     rmvnorm(n=1, mu[[2]], sigma[[2]]);
-##   }
-## }
 
-## ancestralSampling <- function(n) {
-##   t(sapply(1:n, ancestralSampling1))
-## }
+true_pi <- list(0.7, 0.3);
+true_mu <- list(c(8, 7), c(1, 1));
+true_sigma <- list(matrix(c(4,0,0,3), 2, 2), matrix(c(2,3,3,7), 2, 2));
 
-## xx <- ancestralSampling(100)
+ancestralSampling1 <- function(n) {
+  x <- runif(1);
+  if (x[1] <= true_pi[[1]]) {
+    rmvnorm(n=1, true_mu[[1]], true_sigma[[1]]);
+  } else {
+    rmvnorm(n=1, true_mu[[2]], true_sigma[[2]]);
+  }
+}
+
+ancestralSampling <- function(n) {
+  t(sapply(1:n, ancestralSampling1))
+}
+
+xx <- ancestralSampling(1000)
+#plot(xx);
+start_pi <- list(rnorm(1, 0.5), rnorm(1, 0.5));
+start_mu <- list(c(rnorm(1, 10), rnorm(1, 10)), c(rnorm(1, 10), rnorm(1, 10)));
+start_sigma <- list(matrix(c(1,0,0,1), 2, 2), matrix(c(1,0,0,1), 2, 2));
+
+gammaKn = Estep(xx, start_pi, start_mu, start_sigma)
+v <- Mstep(xx, gammaKn);
+v[[1]]
+for(n in 1:30) {
+  gammaKn = Estep(xx, v[[1]], v[[2]], v[[3]]);
+  v <- Mstep(xx, gammaKn);
+  cat(sprintf("n=%d mu=v%s\n", n, v[[1]]));
+}
+
+
